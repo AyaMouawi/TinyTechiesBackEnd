@@ -1,0 +1,10 @@
+1-For Each Table We Must Mainly Do As A Starter:
+  ----------------------------------------------
+getAll
+getById
+add
+update
+delete
+
+2-All Api should be tested on postman to avoid conflicts
+  -------------------------------------------------------
