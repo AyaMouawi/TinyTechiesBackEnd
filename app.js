@@ -7,9 +7,11 @@ require('./config/db');
 app.use(bodyParser.json());
 
 const userRoutes = require('./routes/userRoute');
+const coursesRoutes = require('./routes/coursesRoute');
 
 
 app.use('/user', userRoutes);
+app.use('/courses', coursesRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
