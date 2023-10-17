@@ -74,7 +74,29 @@ const getAllUsers = async (req, res) =>{ // Name the function according to the t
         };
 
     
-     
+        const updateUser = async (req, res) => {
+            const { UserFullName, Password, UserEmail, UserAge, UserAbsence, Role } = req.body;  // change according to the fields of the table you are working on 
+            const userId = req.params.id;
+          
+            try {
+              const result = await db.query(
+                `UPDATE users SET UserFullName = ?, Password = ?, UserEmail = ?, UserAge = ?, UserAbsence = ?, Role = ? WHERE User_id = ?`,  // change according to the fields of the table you are working on 
+                [UserFullName, Password, UserEmail, UserAge, UserAbsence, Role, userId]  // change according to the fields of the table you are working on 
+              );
+          
+              console.log(result);
+              res.status(200).json({
+                success: true,
+                message: 'Data updated successfully',
+              });
+            } catch (error) {
+              res.status(400).json({
+                success: false,
+                message: 'Unable to update data',
+                error,
+              });
+            }
+          }; 
 
 
 
@@ -82,4 +104,4 @@ const getAllUsers = async (req, res) =>{ // Name the function according to the t
 
 
 
-    module.exports = { getAllUsers, getUserByID, deleteUser, addUser};  // export the functions names you wrote
+    module.exports = { getAllUsers, getUserByID, deleteUser, addUser, updateUser};  // export the functions names you wrote
