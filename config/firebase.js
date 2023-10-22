@@ -1,5 +1,3 @@
-const { initializeApp } = require('firebase/app');
-const { getAnalytics } = require('firebase/analytics');
 
 const firebaseConfig = {
   apiKey: process.env.FIREBASE_API_KEY,
@@ -11,7 +9,5 @@ const firebaseConfig = {
   measurementId: process.env.FIREBASE_MEASUREMENT_ID,
 };
 
-const fb = initializeApp(firebaseConfig);
-const analytics = getAnalytics(fb);
 
-module.exports = fb;
+module.exports = firebaseConfig ;
