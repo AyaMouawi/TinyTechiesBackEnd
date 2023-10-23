@@ -44,5 +44,21 @@ const Enroll = async (req, res) => {
     }
   };
 
+  const getAllStudents = async (req, res) => {
+    try {
+      const [result] = await db.query(`SELECT * FROM users Where Role = 'Student'`);
+      res.status(200).json({
+        success: true,
+        message: 'Data retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'Unable to get new data',
+        error,
+      });
+    }
+  };
 
-module.exports = { getStudentsByCourseName, Enroll };
+module.exports = { getStudentsByCourseName, Enroll, getAllStudents };

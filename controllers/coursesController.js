@@ -14,23 +14,24 @@ const storage = getStorage();
 const getAllCourses = async (req, res) => {
   try {
     const [result] = await db.query(`SELECT
-                                        c.Course_id,
-                                        c.CourseName,
-                                        c.CourseStartTime,
-                                        c.CourseEndTime,
-                                        c.CourseDescription,
-                                        c.CourseFile,
-                                        c.CourseImage,
-                                        c.CourseAvailability,
-                                        COUNT(sc.Student_id) AS StudentCount
-                                      FROM
-                                        courses c
-                                      LEFT JOIN
-                                        studentcourses sc
-                                      ON
-                                        c.Course_id = sc.Course_id
-                                      GROUP BY
-                                        c.Course_id, c.CourseName, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage, c.CourseAvailability`);
+                                    c.Course_id,
+                                    c.CourseName,
+                                    c.CourseStartTime,
+                                    c.CourseEndTime,
+                                    c.CourseDescription,
+                                    c.CourseFile,
+                                    c.CourseImage,
+                                    
+                                    COUNT(sc.Student_id) AS StudentCount
+                                FROM
+                                    courses c
+                                LEFT JOIN
+                                    studentcourses sc
+                                ON
+                                    c.Course_id = sc.Course_id
+                              
+                                GROUP BY
+                                    c.Course_id, c.CourseName, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage`);
     res.status(200).json({
       success: true,
       message: 'Data retrieved successfully',
@@ -51,7 +52,7 @@ const getPopularCourses = async (req, res) => {
     const [result] = await db.query(`SELECT c.*, COUNT(sc.Student_id) AS StudentCount
                                             FROM courses c
                                             LEFT JOIN studentcourses sc ON c.Course_id = sc.Course_id
-                                            GROUP BY c.Course_id, c.CourseName, c.Trainer_id, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage, c.CourseAvailability
+                                            GROUP BY c.Course_id, c.CourseName, c.Trainer_id, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage
                                             ORDER BY StudentCount DESC
                                             LIMIT 4`);
     res.status(200).json({
@@ -71,15 +72,10 @@ const getPopularCourses = async (req, res) => {
 
 const getCoursesByStudentId = async (req, res) => {
   try {
-    const [result] = await db.query(`SELECT c.*, COUNT(sc.Student_id) AS StudentCount
-                                      FROM courses c
-                                      LEFT JOIN studentcourses sc ON c.Course_id = sc.Course_id
-                                      WHERE c.Course_id NOT IN (
-                                          SELECT sc.Course_id
-                                          FROM studentcourses sc
-                                          WHERE sc.Student_id = ?
-                                      )
-                                      GROUP BY c.Course_id`, [ req.params.id,]);
+    const [result] = await db.query(`SELECT c.*
+    FROM courses c
+    INNER JOIN studentcourses sc ON c.Course_id = sc.Course_id
+    WHERE sc.Student_id = ?`, [ req.params.id,]);
     res.status(200).json({
       success: true,
       message: 'Data retrieved successfully',
@@ -135,7 +131,7 @@ const getCourseByCourseName = async (req, res) => {
                   c.CourseDescription,
                   c.CourseFile,
                   c.CourseImage,
-                  c.CourseAvailability,
+               
                   COUNT(sc.Student_id) AS StudentCount
               FROM
                   courses c
@@ -219,7 +215,7 @@ const addCourse = async (req, res) => {
     CourseStartTime,
     CourseEndTime,
     CourseDescription,
-    CourseAvailability,
+   
   } = req.body;
 
   try {
@@ -230,8 +226,8 @@ const addCourse = async (req, res) => {
     console.log(image.downloadURL)
     console.log(file.downloadURL)
     const result = await db.query(
-      `INSERT INTO courses (Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription, CourseFile, CourseImage, CourseAvailability) VALUES (?,?,?,?,?,?,?,?);`,
-      [Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription, image.downloadURL, file.downloadURL, CourseAvailability]
+      `INSERT INTO courses (Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription, CourseFile, CourseImage) VALUES (?,?,?,?,?,?,?);`,
+      [Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription, image.downloadURL, file.downloadURL]
     );
 
     console.log(result);
@@ -277,7 +273,7 @@ const updateCourse = async (req, res) => {
     CourseStartTime,
     CourseEndTime,
     CourseDescription,
-    CourseAvailability,
+   
   } = req.body;
   
 
@@ -287,8 +283,8 @@ const updateCourse = async (req, res) => {
     console.log(image.downloadURL)
     console.log(file.downloadURL)
     const result = await db.query(
-      `UPDATE users SET Trainer_id = ?, CourseName = ?, CourseStartTime = ?, CourseEndTime = ?, CourseDescription = ?, CourseFile = ?, CourseImage = ?, CourseImage = ?, CourseAvailability = ?  WHERE Course_id = ?`,
-      [Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription,  image.downloadURL, file.downloadURL, CourseAvailability, CourseId]
+      `UPDATE users SET Trainer_id = ?, CourseName = ?, CourseStartTime = ?, CourseEndTime = ?, CourseDescription = ?, CourseFile = ?, CourseImage = ?, CourseImage = ? WHERE Course_id = ?`,
+      [Trainer_id, CourseName, CourseStartTime, CourseEndTime, CourseDescription,  image.downloadURL, file.downloadURL,CourseId]
     );
 
     console.log(result);

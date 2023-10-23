@@ -23,14 +23,12 @@ const addAssignmentContent  = async (req, res) => {
   
     try {
       
-      
-      const image = await FileUpload(req.files.image[0]);
-      const file = await FileUpload(req.files.file[0]); 
-      console.log(image.downloadURL)
+  
+      const file = await FileUpload(req.file); 
       console.log(file.downloadURL)
       const result = await db.query(
-        `INSERT INTO assignmentscontent (AssignmentDueDate, AssignmentFile, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName, AssignmentContentImage) VALUES (?,?,?,?,?,?,?,?);`,
-        [AssignmentDueDate, file.downloadURL, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName, image.downloadURL]
+        `INSERT INTO assignmentscontent (AssignmentDueDate, AssignmentFile, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName) VALUES (?,?,?,?,?,?,?);`,
+        [AssignmentDueDate, file.downloadURL, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName]
       );
   
       console.log(result);

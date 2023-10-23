@@ -6,7 +6,7 @@ const {
     addAssignmentContent,
 } = require('../controllers/assignmentContentController');
 
-router.post('/add',upload.fields([{ name: 'image' }, { name: 'file' }]), addAssignmentContent);
+router.post('/add',upload.single('file'), addAssignmentContent);
 
 
 

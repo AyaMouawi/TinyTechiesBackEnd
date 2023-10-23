@@ -12,12 +12,14 @@ const {
   const getAssignmentByCoursesAndStudentID = async (req, res) => {
     try {
       const [result] = await db.query(`
-        SELECT *
-        FROM assignmentscontent
-        JOIN studentassignment ON assignmentscontent.AssignmentContent_id = studentassignment.AssignmentContent_id
-        WHERE assignmentscontent.Course_id = ? 
-          AND studentassignment.Student_id = ? 
-          AND studentassignment.Done = 0
+                              SELECT *
+                        FROM assignmentscontent
+                        WHERE Course_id = ? 
+                          AND AssignmentContent_id NOT IN (
+                            SELECT AssignmentContent_id
+                            FROM studentassignment
+                            WHERE Student_id = ?
+                          ); 
       `, [
         req.params.cId, 
         req.params.sId, 

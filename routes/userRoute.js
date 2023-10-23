@@ -10,6 +10,7 @@ const {
   updateUser,
   loginUser,
   addStudent,
+
 } = require('../controllers/userController');
 
 router.get('/getAll', getAllUsers);
