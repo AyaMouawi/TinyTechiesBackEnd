@@ -72,10 +72,13 @@ const getPopularCourses = async (req, res) => {
 
 const getCoursesByStudentId = async (req, res) => {
   try {
-    const [result] = await db.query(`SELECT c.*
-    FROM courses c
-    INNER JOIN studentcourses sc ON c.Course_id = sc.Course_id
-    WHERE sc.Student_id = ?`, [ req.params.id,]);
+    const [result] = await db.query(`
+      SELECT c.*
+      FROM courses c
+      LEFT JOIN studentcourses sc ON c.Course_id = sc.Course_id AND sc.Student_id = ?
+      WHERE sc.Student_id IS NULL
+    `, [req.params.id]);
+
     res.status(200).json({
       success: true,
       message: 'Data retrieved successfully',
