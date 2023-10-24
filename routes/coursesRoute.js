@@ -17,7 +17,6 @@ const {
 } = require('../controllers/coursesController');
 
 router.get('/getAll', getAllCourses);
-router.get('/getCourseName/:CourseName', getCourseIDByName);
 
 router.get('/get/:id', getCourseByID);
 router.get('/getByStudent/:id',getCoursesByStudentId);

@@ -123,39 +123,6 @@ const getCourseByID = async (req, res) => {
     });
   }
 };
-
-const getCourseIDByName = async (req, res) => {
-  try {
-    const courseName = req.params.CourseName;
-    console.log('Requested Course Name:', courseName);
-
-    const result = await db.query(`SELECT Course_id FROM courses WHERE CourseName = ?`, [courseName]);
-    console.log('Query Result:', result);
-
-    if (result.length > 0) {
-      res.status(200).json({
-        success: true,
-        message: 'Data retrieved successfully',
-        data: result[0].Course_id, // Assuming the result is an array
-      });
-    } else {
-      res.status(404).json({
-        success: false,
-        message: 'Course not found',
-      });
-    }
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Unable to get data',
-      error: error.message,
-    });
-  }
-};
-
-
-
 const getCourseByCourseName = async (req, res) => {
   try {
     const [result] = await db.query(`SELECT
@@ -380,4 +347,4 @@ const giveCurrentDateTime = () => {
 };
 
 
-module.exports = { getAllCourses, addCourse, getCourseByID, deleteCourse, updateCourse, getPopularCourses, getStudentCourse, getCoursesByTrainerID, getCourseByCourseName, getCoursesByStudentId,getCourseIDByName};
+module.exports = { getAllCourses, addCourse, getCourseByID, deleteCourse, updateCourse, getPopularCourses, getStudentCourse, getCoursesByTrainerID, getCourseByCourseName, getCoursesByStudentId};
