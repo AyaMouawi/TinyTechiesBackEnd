@@ -46,6 +46,30 @@ const addAssignmentContent  = async (req, res) => {
     }
   };
 
+
+  const getAssignmentByCourseName = async (req, res) => {
+    try {
+      const [result] = await db.query(`SELECT a.*
+      FROM assignmentscontent AS a
+      JOIN courses AS c ON a.Course_id = c.Course_id
+      WHERE c.CourseName =?`, [
+        req.params.Cname,
+      ]);
+      res.status(200).json({
+        success: true,
+        message: 'Data retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'Unable to get data',
+        error,
+      });
+    }
+  };
+
+
 const FileUpload = async (file) => {
 const dateTime = giveCurrentDateTime();
 
@@ -90,4 +114,4 @@ const giveCurrentDateTime = () => {
 };
 
 
-module.exports = {addAssignmentContent };
+module.exports = {addAssignmentContent, getAssignmentByCourseName };

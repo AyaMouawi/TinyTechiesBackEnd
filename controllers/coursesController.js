@@ -73,10 +73,18 @@ const getPopularCourses = async (req, res) => {
 const getCoursesByStudentId = async (req, res) => {
   try {
     const [result] = await db.query(`
-      SELECT c.*
+      SELECT c.*, 
+             (
+               SELECT COUNT(Student_id)
+               FROM studentcourses sc
+               WHERE sc.Course_id = c.Course_id
+             ) AS StudentCount
       FROM courses c
-      LEFT JOIN studentcourses sc ON c.Course_id = sc.Course_id AND sc.Student_id = ?
-      WHERE sc.Student_id IS NULL
+      WHERE c.Course_id NOT IN (
+        SELECT Course_id
+        FROM studentcourses
+        WHERE Student_id = ?
+      )
     `, [req.params.id]);
 
     res.status(200).json({
@@ -92,6 +100,8 @@ const getCoursesByStudentId = async (req, res) => {
     });
   }
 };
+
+
 
 const getCourseByID = async (req, res) => {
   try {

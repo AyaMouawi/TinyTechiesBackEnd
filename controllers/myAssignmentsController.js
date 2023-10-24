@@ -39,6 +39,42 @@ const {
     }
   };
 
+  const getAssignmentFile = async (req, res) => {
+    try {
+      const [result] = await db.query(`
+        SELECT sa.StudentAssignmentFile
+        FROM studentassignment sa
+        INNER JOIN users u ON sa.Student_id = u.User_id
+        INNER JOIN assignmentscontent ac ON sa.AssignmentContent_id = ac.AssignmentContent_id
+        WHERE u.UserFullName = ? AND ac.AssignmentName = ?;
+      `, [
+        req.params.studentName,
+        req.params.assignmentName, 
+      ]);
+  
+      if (result.length === 0) {
+        res.status(404).json({
+          success: false,
+          message: 'Assignment not found for the provided Student Name and Assignment Name',
+        });
+      } else {
+        res.status(200).json({
+          success: true,
+          message: 'Assignment file retrieved successfully',
+          data: result[0].StudentAssignmentFile, 
+        });
+      }
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: 'Unable to get assignment file',
+        error,
+      });
+    }
+  };
+  
+  
+
 
   const getGradesByCourseId = async (req, res) => {
     try {
@@ -71,8 +107,7 @@ const {
     const {
       AssignmentContent_id,
       Student_id,
-      Done,
-      Grade,
+      
       
     } = req.body;
   
@@ -83,8 +118,8 @@ const {
       const file = await FileUpload(req.files.file[0]); 
       console.log(file.downloadURL)
       const result = await db.query(
-        `INSERT INTO studentassignment (AssignmentContent_id, Student_id, Done,  StudentAssignmentFile,Grade) VALUES (?,?,?,?,?);`,
-        [AssignmentContent_id, Student_id, 1 , file.downloadURL,Grade]
+        `INSERT INTO studentassignment (AssignmentContent_id, Student_id, StudentAssignmentFile,Grade) VALUES (?,?,?,?);`,
+        [AssignmentContent_id, Student_id,file.downloadURL, null]
       );
   
       console.log(result);
@@ -101,33 +136,35 @@ const {
       });
     }
   };
-  const updateStudentAssignmentGrade = async (req, res) => {
-    const {Grade}  = req.body;
-    console.log(Grade);
-    const studentId = req.params.Sid;
-    const assignmentId = req.params.Aid;
   
+  const updateStudentAssignmentGradeByName = async (req, res) => {
+    const { Grade } = req.body;
+    const { StudentName, AssignmentName } = req.params; 
+
     try {
-      const result = await db.query(
-        `UPDATE studentassignment SET Grade = ? WHERE Student_id = ? AND AssignmentContent_id = ?`,
-        [Grade ,studentId, assignmentId ]
-        
-      );
-  
-      console.log(result);
-      res.status(200).json({
-        success: true,
-        message: 'Data updated successfully',
-      });
-      
+        const result = await db.query(
+            `UPDATE studentassignment
+            SET Grade = ?
+            WHERE Student_id = (SELECT User_id FROM users WHERE UserFullName = ?)
+            AND AssignmentContent_id IN (SELECT AssignmentContent_id FROM assignmentscontent WHERE AssignmentName = ?)`,
+            [Grade, StudentName, AssignmentName]
+        );
+
+        console.log(result);
+        res.status(200).json({
+            success: true,
+            message: 'Data updated successfully',
+        });
+
     } catch (error) {
-      res.status(400).json({
-        success: false,
-        message: 'Unable to update data',
-        error,
-      });
+        res.status(400).json({
+            success: false,
+            message: 'Unable to update data',
+            error,
+        });
     }
-  };
+};
+
 
   const FileUpload = async (file) => {
     const dateTime = giveCurrentDateTime();
@@ -171,4 +208,4 @@ const {
     };
     
 
-module.exports = { getAssignmentByCoursesAndStudentID, addStudentAssignment, updateStudentAssignmentGrade, getGradesByCourseId };
+module.exports = { getAssignmentByCoursesAndStudentID, addStudentAssignment, updateStudentAssignmentGradeByName, getGradesByCourseId, getAssignmentFile  };
