@@ -10,41 +10,41 @@ const {
 // Initialize Cloud Storage
 const storage = getStorage();
 
-const addAssignmentContent  = async (req, res) => {
-    const {
-     AssignmentDueDate,
-      ZoomLink,
-      MeetingDate,
-      Course_id,
-      AssignmentRequirement,
-      AssignmentName,
-  
-    } = req.body;
-  
-    try {
-      
-  
-      const file = await FileUpload(req.file); 
-      console.log(file.downloadURL)
-      const result = await db.query(
-        `INSERT INTO assignmentscontent (AssignmentDueDate, AssignmentFile, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName) VALUES (?,?,?,?,?,?,?);`,
-        [AssignmentDueDate, file.downloadURL, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName]
-      );
-  
-      console.log(result);
-      res.status(201).json({
-        success: true,
-        message: 'Data added successfully',
-      });
-    } catch (error) {
-      console.error('Error adding new course:', error);
-      res.status(400).json({
-        success: false,
-        message: 'Unable to add new data',
-        error: error.message,
-      });
-    }
-  };
+const addAssignmentContent = async (req, res) => {
+  const {
+    AssignmentDueDate,
+    ZoomLink,
+    MeetingDate,
+    AssignmentRequirement,
+    AssignmentName,
+    CourseName, // Access CourseName from the request body
+  } = req.body;
+
+  try {
+    const file = await FileUpload(req.file);
+    console.log(file.downloadURL);
+    const result = await db.query(
+      `INSERT INTO assignmentscontent (AssignmentDueDate, AssignmentFile, ZoomLink, MeetingDate, Course_id, AssignmentRequirement, AssignmentName) 
+      SELECT ?, ?, ?, ?, (SELECT Course_id FROM courses WHERE CourseName = ?), ?, ?;`, // Use CourseName
+      [AssignmentDueDate, file.downloadURL, ZoomLink, MeetingDate, CourseName, AssignmentRequirement, AssignmentName]
+    );
+
+    console.log(result);
+    res.status(201).json({
+      success: true,
+      message: 'Data added successfully',
+    });
+  } catch (error) {
+    console.error('Error adding new course:', error);
+    res.status(400).json({
+      success: false,
+      message: 'Unable to add new data',
+      error: error.message,
+    });
+  }
+};
+
+
 
 const FileUpload = async (file) => {
 const dateTime = giveCurrentDateTime();
