@@ -5,7 +5,7 @@ const getStudentsByCourseName = async (req, res) => {
 
     try {
         
-        const query = 'SELECT users.* FROM courses JOIN studentcourses ON courses.Course_id = studentcourses.Course_id JOIN users ON studentcourses.Student_id = users.User_id WHERE courses.CourseName = ?';
+        const query = 'SELECT * FROM courses JOIN studentcourses ON courses.Course_id = studentcourses.Course_id JOIN users ON studentcourses.Student_id = users.User_id WHERE courses.CourseName = ?';
         const [result] = await db.query(query, [CourseName]);
 
         res.status(200).json({

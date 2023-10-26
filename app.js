@@ -21,6 +21,7 @@ const projectsRoutes = require('./routes/projectsRoute');
 const myAssignmentRoutes = require('./routes/myAssignmentsRoute');
 const assignmentContentRoutes = require('./routes/assignmentContentRoute');
 const studentRoutes = require('./routes/studentRoute');
+const attendanceRoutes = require('./routes/attendanceRoute')
 
 app.use('/user', userRoutes);
 app.use('/courses', coursesRoutes);
@@ -30,6 +31,7 @@ app.use('/projects', projectsRoutes);
 app.use('/myAssignments', myAssignmentRoutes);
 app.use('/assignmentContent', assignmentContentRoutes);
 app.use('/student', studentRoutes);
+app.use('/attendance', attendanceRoutes);
 
 app.listen(PORT, () => {
     console.log(`Server is running on PORT ${PORT}`);
