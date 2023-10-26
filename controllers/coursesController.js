@@ -201,11 +201,14 @@ const getStudentCourse = async (req, res) => {
 
 const getCoursesByTrainerID = async (req, res) => {
   try {
-    const [result] = await db.query(` SELECT *
-    FROM courses
-    WHERE Trainer_id = ?`, [
-      req.params.id,
-    ]);
+    const [result] = await db.query(`
+      SELECT c.*, COUNT(sc.Student_id) AS StudentCount
+      FROM courses c
+      LEFT JOIN studentcourses sc ON c.Course_id = sc.Course_id
+      WHERE c.Trainer_id = ?
+      GROUP BY c.Course_id, c.Trainer_id, c.CourseName, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage
+    `, [req.params.id]);
+
     res.status(200).json({
       success: true,
       message: 'Data retrieved successfully',
@@ -219,6 +222,7 @@ const getCoursesByTrainerID = async (req, res) => {
     });
   }
 };
+
 
 
 const addCourse = async (req, res) => {
