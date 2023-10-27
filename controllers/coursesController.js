@@ -14,24 +14,25 @@ const storage = getStorage();
 const getAllCourses = async (req, res) => {
   try {
     const [result] = await db.query(`SELECT
-                                    c.Course_id,
-                                    c.CourseName,
-                                    c.CourseStartTime,
-                                    c.CourseEndTime,
-                                    c.CourseDescription,
-                                    c.CourseFile,
-                                    c.CourseImage,
-                                    
-                                    COUNT(sc.Student_id) AS StudentCount
-                                FROM
-                                    courses c
-                                LEFT JOIN
-                                    studentcourses sc
-                                ON
-                                    c.Course_id = sc.Course_id
-                              
-                                GROUP BY
-                                    c.Course_id, c.CourseName, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage`);
+                                  c.Course_id,
+                                  c.CourseName,
+                                  c.CourseStartTime,
+                                  c.CourseEndTime,
+                                  c.CourseDescription,
+                                  c.CourseFile,
+                                  c.CourseImage,
+                                  u.UserFullName AS TrainerName,
+                                  COUNT(sc.Student_id) AS StudentCount
+                              FROM
+                                  courses c
+                              LEFT JOIN
+                                  studentcourses sc
+                                  ON c.Course_id = sc.Course_id
+                              LEFT JOIN
+                                  users u
+                                  ON c.Trainer_id = u.User_id
+                              GROUP BY
+                                  c.Course_id, c.CourseName, c.CourseStartTime, c.CourseEndTime, c.CourseDescription, c.CourseFile, c.CourseImage, TrainerName`);
     res.status(200).json({
       success: true,
       message: 'Data retrieved successfully',

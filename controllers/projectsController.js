@@ -21,6 +21,8 @@ const getAllProjects = async (req, res) => {
                                         projects.ProjectDescription,
                                         projects.ProjectFile,
                                         projects.ShowProject,
+                                        projects.StudentImage,
+                                        projects.StudentProject,
                                         users.UserFullName AS UserName
                                     FROM
                                         projects
@@ -168,6 +170,32 @@ const deleteProject = async (req, res) => {
   }
 };
 
+const updateProjectShow = async (req, res) => {
+  const { Project_id } = req.body; 
+ 
+  try {
+    const result = await db.query(
+      `UPDATE projects
+       SET ShowProject = 1
+       WHERE Project_id = ?`,
+      [Project_id]
+    );
+
+    console.log(result);
+    res.status(200).json({
+      success: true,
+      message: 'ShowProject updated successfully',
+    });
+    
+  } catch (error) {
+    res.status(400).json({
+      success: false,
+      message: 'Unable to update ShowProject',
+      error,
+    });
+  }
+};
+
 
 
 const FileUpload = async (file) => {
@@ -214,4 +242,4 @@ const giveCurrentDateTime = () => {
 };
 
 
-module.exports = { getAllProjects, getRemarkableProjects, addProject, deleteProject, getStudentProjects};
+module.exports = { getAllProjects, getRemarkableProjects, addProject, deleteProject, getStudentProjects, updateProjectShow};

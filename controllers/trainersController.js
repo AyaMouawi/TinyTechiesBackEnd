@@ -131,13 +131,12 @@ const getTrainersFullName = async (req, res) => {
             Password, 
             UserEmail, 
             UserAge, 
-            UserAbsence, 
-            Role } = req.body;
+            } = req.body;
     try {
       const image = await FileUpload(req.file);
       const result = await db.query(
         `INSERT INTO users (UserFullName, Password, UserEmail, UserAge, UserAbsence, Role, TrainerImage) VALUES (?,?,?,?,?,?,?);`,
-        [UserFullName, Password, UserEmail, UserAge, UserAbsence, Role,image.downloadURL]
+        [UserFullName, Password, UserEmail, UserAge, 0, 'Trainer' ,image.downloadURL]
       );
       
       console.log(result);

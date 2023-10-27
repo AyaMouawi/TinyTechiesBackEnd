@@ -61,4 +61,29 @@ const Enroll = async (req, res) => {
     }
   };
 
-module.exports = { getStudentsByCourseName, Enroll, getAllStudents };
+  const getAllStudentsAndCourses = async (req, res) => {
+    try {
+      const query = `
+        SELECT u.*, GROUP_CONCAT(c.CourseName) AS EnrolledCourses
+        FROM users u
+        LEFT JOIN studentcourses sc ON u.User_id = sc.Student_id
+        LEFT JOIN courses c ON sc.Course_id = c.Course_id
+        WHERE u.Role = 'Student'
+        GROUP BY u.User_id
+      `;
+      const [result] = await db.query(query);
+      res.status(200).json({
+        success: true,
+        message: 'Data retrieved successfully',
+        data: result,
+      });
+    } catch (error) {
+      res.status(400).json({
+        success: false,
+        message: 'Unable to get data',
+        error,
+      });
+    }
+};
+
+module.exports = { getStudentsByCourseName, Enroll, getAllStudents, getAllStudentsAndCourses };
