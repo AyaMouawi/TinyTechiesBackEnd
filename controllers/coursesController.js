@@ -338,10 +338,29 @@ const updateCourse = async (req, res) => {
   const { Course_id } = req.params; 
 
   try {
-    const image = await FileUpload(req.files.image[0]);
-    const file = await FileUpload(req.files.file[0]);
-    console.log(image.downloadURL);
-    console.log(file.downloadURL);
+    let image, file;
+    if (req.files.image && req.files.file){
+      image = await FileUpload(req.files.image[0]);
+      file = await FileUpload(req.files.file[0]);
+    }
+    else if (req.files.image){
+      image = await FileUpload(req.files.image[0]);
+      file = {downloadURL: req.body.file}
+    }
+    else if (req.files.file){
+      file = await FileUpload(req.files.file[0]);
+      image = {downloadURL: req.body.image}
+    }
+    else{
+      file = {downloadURL: req.body.file}
+      image = {downloadURL: req.body.image}
+
+    }
+    
+    // const image = await FileUpload(req.files.image[0]);
+    // const file = await FileUpload(req.files.file[0]);
+    // console.log(image.downloadURL);
+    // console.log(file.downloadURL);
     const result = await db.query(
       `UPDATE courses 
        SET Trainer_id = ?, 
