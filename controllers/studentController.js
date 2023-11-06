@@ -46,7 +46,15 @@ const Enroll = async (req, res) => {
 
   const getAllStudents = async (req, res) => {
     try {
-      const [result] = await db.query(`SELECT * FROM users Where Role = 'Student'`);
+      const selectQuery = `
+        SELECT u.*, COUNT(a.Student_id) AS AbsenceCount
+        FROM users u
+        LEFT JOIN attendance a ON u.User_id = a.Student_id AND a.PresenceStatus = 1
+        WHERE u.Role = 'Student'
+        GROUP BY u.User_id;
+      `;
+      const [result] = await db.query(selectQuery);
+  
       res.status(200).json({
         success: true,
         message: 'Data retrieved successfully',
@@ -60,16 +68,19 @@ const Enroll = async (req, res) => {
       });
     }
   };
+  
+  
 
   const getAllStudentsAndCourses = async (req, res) => {
     try {
       const query = `
-        SELECT u.*, GROUP_CONCAT(c.CourseName) AS EnrolledCourses
-        FROM users u
-        LEFT JOIN studentcourses sc ON u.User_id = sc.Student_id
-        LEFT JOIN courses c ON sc.Course_id = c.Course_id
-        WHERE u.Role = 'Student'
-        GROUP BY u.User_id
+      SELECT u.*, GROUP_CONCAT(c.CourseName) AS EnrolledCourses,
+      (SELECT COUNT(*) FROM attendance a WHERE a.Student_id = u.User_id AND a.PresenceStatus = 0) AS Absence
+      FROM users u
+      LEFT JOIN studentcourses sc ON u.User_id = sc.Student_id
+      LEFT JOIN courses c ON sc.Course_id = c.Course_id
+      WHERE u.Role = 'Student'
+      GROUP BY u.User_id
       `;
       const [result] = await db.query(query);
       res.status(200).json({
