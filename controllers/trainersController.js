@@ -1,5 +1,5 @@
 const db = require('../config/db');
-
+const bcrypt = require('bcrypt');
 
 const {
   getStorage,
@@ -127,24 +127,25 @@ const getTrainersFullName = async (req, res) => {
   };
 
   const addTrainer = async (req, res) => {
-    const { UserFullName, 
-            Password, 
-            UserEmail, 
-            UserAge, 
-            } = req.body;
+    const { UserFullName, Password, UserEmail, UserAge } = req.body;
+  
     try {
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(Password, 10);
+  
       const image = await FileUpload(req.file);
       const result = await db.query(
         `INSERT INTO users (UserFullName, Password, UserEmail, UserAge, UserAbsence, Role, TrainerImage) VALUES (?,?,?,?,?,?,?);`,
-        [UserFullName, Password, UserEmail, UserAge, 0, 'Trainer' ,image.downloadURL]
+        [UserFullName, hashedPassword, UserEmail, UserAge, 0, 'Trainer', image.downloadURL]
       );
-      
+  
       console.log(result);
       res.status(201).json({
         success: true,
         message: 'Data added successfully',
       });
     } catch (error) {
+      console.error("Error adding trainer:", error); // Log the error details
       res.status(400).json({
         success: false,
         message: 'Unable to add new data',
@@ -152,6 +153,7 @@ const getTrainersFullName = async (req, res) => {
       });
     }
   };
+  
 
   const FileUpload = async (file) => {
     const dateTime = giveCurrentDateTime();

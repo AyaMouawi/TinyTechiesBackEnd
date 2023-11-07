@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const bcrypt = require('bcrypt');
 
 const {
   getStorage,
@@ -29,34 +30,53 @@ const getAllUsers = async (req, res) => {
 
 const loginUser = async (req, res) => {
   const { UserEmail, Password } = req.body;
+
   try {
     const [result] = await db.query(
-      `SELECT User_id, Role FROM users WHERE UserEmail = ? AND Password = ?`,
-      [UserEmail, Password]
+      `SELECT User_id, Role, Password FROM users WHERE UserEmail = ?`,
+      [UserEmail]
     );
 
-    if (result.length === 0) {
+    if (!result) {
       res.status(401).json({
         success: false,
-        message: 'Username or password is incorrect',
+        message: 'User not found',
       });
-    } else {
-      const { User_id, Role } = result[0];
-      res.status(200).json({
-        success: true,
-        message: 'Login successful',
-        role: Role,
-        userId: User_id,
+      return;
+    }
+
+    const hashedPassword = result[0].Password;
+    console.log('Entered Password:', Password);
+    console.log('Hashed Password:', hashedPassword);
+
+    const passwordMatch = await bcrypt.compare(Password, hashedPassword);
+
+    if (!passwordMatch) {
+      return res.status(401).json({
+        success: false,
+        message: 'Wrong password',
+        role: result[0].Role,
+        userId: result[0].User_id,
       });
     }
+
+    return res.status(200).json({
+      success: true,
+      message: 'Login successfully',
+      role: result[0].Role,
+      userId: result[0].User_id,
+    });
+
   } catch (error) {
     res.status(400).json({
       success: false,
       message: 'Unable to log in',
-      error,
+      error: error.message,
     });
   }
 };
+
+
 
 
 
@@ -81,19 +101,24 @@ const getUserByID = async (req, res) => {
 
 
 const addUser = async (req, res) => {
-  const { UserFullName, 
-          Password, 
-          UserEmail, 
-          UserAge, 
-          UserAbsence, 
-          Role } = req.body;
+  const {
+    UserFullName,
+    Password,
+    UserEmail,
+    UserAge,
+    UserAbsence,
+    Role
+  } = req.body;
+  
   try {
+    const hashedPassword = await bcrypt.hash(Password, 10);
+
     const image = await FileUpload(req.file);
     const result = await db.query(
       `INSERT INTO users (UserFullName, Password, UserEmail, UserAge, UserAbsence, Role, TrainerImage) VALUES (?,?,?,?,?,?,?);`,
-      [UserFullName, Password, UserEmail, UserAge, UserAbsence, Role,image.downloadURL]
+      [UserFullName, hashedPassword, UserEmail, UserAge, UserAbsence, Role, image.downloadURL]
     );
-    
+
     console.log(result);
     res.status(201).json({
       success: true,
@@ -108,18 +133,22 @@ const addUser = async (req, res) => {
   }
 };
 
+
 const addStudent = async (req, res) => {
-  const { UserFullName, 
-          Password, 
-          UserEmail, 
-          UserAge, 
-          } = req.body;
+  const {
+    UserFullName,
+    Password,
+    UserEmail,
+    UserAge,
+  } = req.body;
+
   try {
+    const hashedPassword = await bcrypt.hash(Password, 10);
     const result = await db.query(
       `INSERT INTO users (UserFullName, Password, UserEmail, UserAge, UserAbsence, Role, TrainerImage) VALUES (?,?,?,?,?,?,?);`,
-      [UserFullName, Password, UserEmail, UserAge, 0, 'Student' , null]
+      [UserFullName, hashedPassword, UserEmail, UserAge, 0, 'Student', null]
     );
-    
+
     console.log(result);
     res.status(201).json({
       success: true,
